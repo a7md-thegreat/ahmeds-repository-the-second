@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahmed Yahya's To Do List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Updated background to Red as requested */
+            --background-red: #D22B2B; 
+            --gold: #D4AF37;
+            --teal: #008080;
+            --white: rgba(255, 255, 255, 0.85);
+            --zayed-green: #2E7D32;
+            --uae-red: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            /* Changed background color to Red */
+            background: var(--background-red);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            /* Contrast adjustment for the red background */
+            color: white; 
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 3px solid var(--gold);
+            display: inline-block;
+            padding-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--white);
+            backdrop-filter: blur(12px);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 350px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .card:hover {
+            box-shadow: 0 0 25px rgba(0, 128, 128, 0.6);
+            border-color: #00ced1; /* Turquoise glow */
+        }
+
+        .card.timer-running {
+            background: rgba(200, 255, 200, 0.9);
+        }
+
+        h2 {
+            color: var(--teal);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+        }
+
+        #karam-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--gold);
+            border-radius: 5px;
+            background: white;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: var(--gold);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.3s;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:active {
+            transform: scale(0.92);
+        }
+
+        ul { list-style: none; }
+        li {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: 0.2s;
+            background: rgba(255,255,255,0.4);
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+        li:hover { background: rgba(255,255,255,0.8); }
+        .completed { text-decoration: line-through; opacity: 0.5; color: var(--zayed-green); }
+
+        #timer-display {
+            font-size: 3.5rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            font-weight: 300;
+            color: var(--teal);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background: #eee;
+            border-radius: 6px;
+            margin-top: auto;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--zayed-green);
+            transition: width 1s linear;
+        }
+
+        #wisdom-text {
+            font-style: italic;
+            text-align: center;
+            line-height: 1.8;
+            margin: auto 0;
+            color: #444;
+            font-size: 1.1rem;
+            padding: 10px;
+        }
+
+        footer {
+            margin-top: 4rem;
+            text-align: center;
+            padding: 2rem;
+            color: white;
+        }
+
+        .arabic-word {
+            font-style: italic;
+            font-size: 1.1rem;
+            border-top: 1px solid var(--gold);
+            display: inline-block;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <!-- Updated Header Name -->
+        <h1>Ahmed Yahya's To Do List</h1>
+    </header>
+
+    <div class="dashboard-grid">
+        <div class="card" id="karam-card">
+            <h2>Daily Karam</h2>
+            <div id="karam-input-container">
+                <input type="text" id="karam-input" placeholder="Add an act of Karam...">
+                <button onclick="addKaram()">Add</button>
+            </div>
+            <ul id="karam-list"></ul>
+        </div>
+
+        <div class="card" id="timer-card">
+            <h2>Reflection Clock</h2>
+            <div id="timer-display">25:00</div>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                <button onclick="startTimer()">Start</button>
+                <button onclick="pauseTimer()">Pause</button>
+                <button onclick="resetTimer()">Reset</button>
+            </div>
+            <div class="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Founders Wisdom</h2>
+            <div id="wisdom-text"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p class="arabic-word">Karam - Generosity - Ka-ram</p>
+    </footer>
+
+    <script>
+        // --- Persistence Logic ---
+        const karamInput = document.getElementById('karam-input');
+        const karamList = document.getElementById('karam-list');
+
+        function loadKaram() {
+            const saved = JSON.parse(localStorage.getItem('yahyaTasks')) || [];
+            saved.forEach(task => renderTask(task.text, task.done));
+        }
+
+        function saveKaram() {
+            const tasks = [];
+            document.querySelectorAll('#karam-list li').forEach(li => {
+                tasks.push({ text: li.innerText, done: li.classList.contains('completed') });
+            });
+            localStorage.setItem('yahyaTasks', JSON.stringify(tasks));
+        }
+
+        function renderTask(text, done = false) {
+            const li = document.createElement('li');
+            li.innerText = text;
+            if (done) li.classList.add('completed');
+            
+            li.onclick = () => { li.classList.toggle('completed'); saveKaram(); };
+            li.ondblclick = () => { li.remove(); saveKaram(); };
+            
+            karamList.appendChild(li);
+        }
+
+        function addKaram() {
+            if (karamInput.value.trim() === "") return;
+            renderTask(karamInput.value);
+            karamInput.value = "";
+            saveKaram();
+        }
+
+        // --- Timer Logic ---
+        let timeLeft = 25 * 60;
+        let timerId = null;
+        const totalTime = 25 * 60;
+        const display = document.getElementById('timer-display');
+        const progress = document.getElementById('progress-bar');
+        const timerCard = document.getElementById('timer-card');
+
+        function updateDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            display.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+            const percentage = (timeLeft / totalTime) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+
+        function startTimer() {
+            if (timerId) return;
+            timerCard.classList.add('timer-running');
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    timerCard.classList.remove('timer-running');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerId);
+            timerId = null;
+            timerCard.classList.remove('timer-running');
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeLeft = totalTime;
+            updateDisplay();
+        }
+
+        // --- Wisdom Logic ---
+        const quotes = [
+            "He who does not know his past cannot make the best of his future.",
+            "The future belongs to those who can imagine it, design it, and execute it.",
+            "Our heritage is our soul. It is our identity.",
+            "The desert was our school, and Sheikh Zayed was our teacher.",
+            "Education is like a lantern which lights your way in a dark alley.",
+            "We must not rely on oil alone as the main source of our national income.",
+            "The human being is the primary goal of our development.",
+            "History is a continuous chain of events. The present is an extension of the past.",
+            "The real asset of any advanced nation is its people.",
+            "To take the lead, you must have the courage to make decisions."
+        ];
+
+        function displayWisdom() {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('wisdom-text').innerText = `"${randomQuote}"`;
+        }
+
+        window.onload = () => {
+            loadKaram();
+            displayWisdom();
+            updateDisplay();
+        };
+
+        // Allow 'Enter' key to add tasks
+        karamInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                addKaram();
+            }
+        });
+    </script>
+</body>
+</html>
